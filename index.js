@@ -33,12 +33,11 @@ app.get('/talker', (_request, response) => {
 app.get('/talker/:id', (req, res) => {
   const { id } = req.params;
   const people = fs.readFileSync(TALKER, 'utf-8');
-  const person = people.find((person) => person.id === id);
-  if(!person) {
+  const person = people.find((p) => Number(p.id) === Number(id));
+  if (!person) {
     return res.status(404).json({
-      message: 'Pessoa palestrante não encontrada'   
-    })
+      message: 'Pessoa palestrante não encontrada',
+    });
   }
   return res.status(200).json(person);
 });
-
