@@ -19,6 +19,7 @@ app.listen(PORT, () => {
   console.log('Online');
 });
 
+// 1. O endpoint deve retornar um array com todas as pessoas palestrantes cadastradas
 app.get('/talker', (_request, response) => {
   try {
     const people = fs.readFileSync(TALKER, 'utf-8');
@@ -27,3 +28,17 @@ app.get('/talker', (_request, response) => {
     return error;
   }
 });
+
+// 2. O endpoint deve retornar uma pessoa palestrante com base no id da rota.
+app.get('/talker/:id', (req, res) => {
+  const { id } = req.params;
+  const people = fs.readFileSync(TALKER, 'utf-8');
+  const person = people.find((person) => person.id === id);
+  if(!person) {
+    return res.status(404).json({
+      message: 'Pessoa palestrante não encontrada'   
+    })
+  }
+  return res.status(200).json(person);
+});
+
