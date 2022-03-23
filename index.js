@@ -29,7 +29,6 @@ app.get('/talker', (_request, response) => {
   }
 });
 
-
 // 2. O endpoint deve retornar uma pessoa palestrante com base no id da rota.
 app.get('/talker/:id', (req, res) => {
   const { id } = req.params;
@@ -42,4 +41,3 @@ app.get('/talker/:id', (req, res) => {
   }
   return res.status(200).json(person);
 });
-
