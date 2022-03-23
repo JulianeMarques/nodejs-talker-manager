@@ -43,10 +43,6 @@ app.get('/talker/:id', (req, res) => {
 });
 
 // 3. O endpoint deve ser capaz de retornar um token aleatório de 16 caracteres que deverá ser utilizado nas demais requisições.
-app.post('./login', (req, res) => {
-
-  return res.status(200).json({ token });
-});
 
 // token: https://www.codegrepper.com/code-examples/javascript/create+16+char+token+jsv
 // var crypto = require("crypto");
@@ -64,6 +60,14 @@ const validEmail = (req, res, next) => {
       message: 'O campo "email" é obrigatório',
     });
   };
+  
+  const regex = /\S+@\S+\.\S+/;
+  if (!regex.test(email)) {
+    return res.status(400).json({
+      message: 'O "email" deve ter o formato "email@email.com"',
+    })
+  }
+  next();
 };
 
 const validPassword = (req, res, next) => {
@@ -73,7 +77,12 @@ const validPassword = (req, res, next) => {
   }
   if (password.length < 6) {
     return 'O "password" deve ter pelo menos 6 caracteres';
-    return undefined;
   }
+  next();
 };
+
+app.post('./login', validEmail, validPassword, (req, res) => {
+  const token = createToken();
+  return res.status(200).json({ token });
+});
 
