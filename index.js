@@ -232,12 +232,12 @@ app.get('/talker/search',
   validToken,
   (req, res) => {
     const { question } = req.query;
-    const people = JSON.parse(fs.readFileSync(TALKER, 'utf-8'));
+    const people = JSON.parse(fs.readFileSync(TALKER));
+    const lower = question.toLowerCase();
+    const peopleQuery = people.filter(({ name }) => (name.toLowerCase()).includes(lower));
     if (!question) {
       return res.status(200).json([]);
     }
-    const peopleQuery = people.filter((person) => person.name.toLowerCase() === question.toLowerCase(),
-    );
     if (!peopleQuery) {
       return res.status(200).json(peopleQuery);
     }
