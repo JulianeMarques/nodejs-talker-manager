@@ -209,14 +209,9 @@ app.post('/talker',
     const people = JSON.parse(fs.readFileSync(TALKER, 'utf-8'));
     const id = people.length + 1;
     const person = { name, age, id, talk };
-    const newPeople = people.push(person);
-    fs.writeFileSync(TALKER, JSON.stringify(newPeople));
-    return res.status(201).json({
-      id,
-      name,
-      age,
-      talk,
-    });
+    people.push(person);
+    fs.writeFileSync(TALKER, JSON.stringify(people));
+    return res.status(201).json(person);
   });
 
 // app.put('/talker/:id', 
