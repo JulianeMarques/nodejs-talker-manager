@@ -19,8 +19,8 @@ app.listen(PORT, () => {
 
 const TALKER = 'talker.json';
 
-const allTalkers = () => fs.readFile(TALKER, 'utf8')
-    .then((data) => JSON.parse(data));
+// const allTalkers = () => fs.readFile(TALKER, 'utf8')
+//     .then((data) => JSON.parse(data));
 
 // 1. O endpoint deve retornar um array com todas as pessoas palestrantes cadastradas
 app.get('/talker', (_request, response) => {
@@ -194,10 +194,6 @@ const validTalk = (req, res, next) => {
       message: 'O campo "talk" é obrigatório e "watchedAt" e "rate" não podem ser vazios',
     });
   }
-
-  validRate(req, res);
-  validDate(req, res);
-
   next();
 };
 
@@ -210,7 +206,7 @@ app.post('/talker',
   validAge,
   async (req, res) => {
     const { age, name, talk } = req.body;
-    const people = await allTalkers();
+    const people = JSON.parse(fs.readFileSync(TALKER, 'utf-8'));
     const id = people.length + 1;
     const person = { name, age, id, talk };
     const newPeople = people.push(person);
