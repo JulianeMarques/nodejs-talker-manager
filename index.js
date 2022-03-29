@@ -28,6 +28,30 @@ app.get('/talker', (_request, response) => {
   }
 });
 
+const validToken = (req, res, next) => {
+  const token = req.headers.authorization;
+  if (!token) {
+    return res.status(401).json({
+      message: 'Token não encontrado',
+    });
+  }
+  if (token.length < 16) {
+    return res.status(401).json({
+      message: 'Token inválido',
+    });
+  }
+  next();
+};
+
+app.get('/talker/search',
+  validToken,
+  (req, res) => {
+    const { q: question } = req.query;
+    const people = JSON.parse(fs.readFileSync(TALKER));
+    const peopleQuery = people.filter(({ name }) => name.includes(question));
+    return res.status(200).json(peopleQuery);
+  });
+
 app.get('/talker/:id', (req, res) => {
   const { id } = req.params;
   const people = fs.readFileSync(TALKER, 'utf-8');
@@ -87,21 +111,6 @@ validPassword,
   const token = createToken();
   return res.status(200).json({ token });
 });
-
-const validToken = (req, res, next) => {
-  const token = req.headers.authorization;
-  if (!token) {
-    return res.status(401).json({
-      message: 'Token não encontrado',
-    });
-  }
-  if (token.length < 16) {
-    return res.status(401).json({
-      message: 'Token inválido',
-    });
-  }
-  next();
-};
 
 const validName = (req, res, next) => {
   const { name } = req.body;
@@ -226,19 +235,4 @@ app.delete('/talker/:id',
     const talkers = people.filter((person) => person.id !== parseInt(id, 10));
     fs.writeFileSync(TALKER, JSON.stringify(talkers));
     return res.status(204).end();
-  });
-
-app.get('/talker/search',
-  validToken,
-  (req, res) => {
-    const { question } = req.query;
-    const people = JSON.parse(fs.readFileSync(TALKER));
-    const lower = question.toLowerCase();
-    const peopleQuery = people.filter(({ name }) => (name.toLowerCase()).includes(lower));
-    if (!question) {
-      return res.status(200).json([]);
-    }
-    if (!peopleQuery) {
-      return res.status(200).json(peopleQuery);
-    }
   });
