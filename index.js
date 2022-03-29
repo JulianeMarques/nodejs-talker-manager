@@ -56,9 +56,8 @@ const createToken = () => {
 
 const validEmail = (req, res, next) => {
   const { email } = req.body;
-  const { body } = req;
-  console.log(body);
   if (!email || email === "") {
+    // console.log("oi");
     return res.status(400).json({
       message: 'O campo "email" é obrigatório',
     });
@@ -75,16 +74,20 @@ const validEmail = (req, res, next) => {
 
 const validPassword = (req, res, next) => {
   const { password } = req.body;
-  if (!password) {
-    return 'O campo "password" é obrigatório';
+  if (!password || password === '') {
+    return res.status(400).json({
+      message: 'O campo "password" é obrigatório',
+    })
   }
   if (password.length < 6) {
-    return 'O "password" deve ter pelo menos 6 caracteres';
+    return res.status(400).json({
+      message: 'O "password" deve ter pelo menos 6 caracteres',
+    })
   }
   next();
 };
 
-app.post("/login", validEmail, validPassword, (req, res) => {
+app.post("/login", validEmail, validPassword, (_req, res) => {
   const token = createToken();
   return res.status(200).json({ token });
 });
@@ -146,7 +149,7 @@ const validAge = (req, res, next) => {
 const validDateRate = (req, res, next) => {
   const { talk } = req.body;
   const { watchedAt, rate } = talk;
-  if ()) { // nao sei fazer....
+  if () { // nao sei fazer....
     return response.status(400).json({
       message: 'O campo "watchedAt" deve ter o formato "dd/mm/aaaa"',
     });
@@ -182,7 +185,7 @@ app.post(
   validToken,
   validName,
   validTalk,
-  validDateRate,
+  // validDateRate,
   validAge,
   validPassword,
   validEmail,
