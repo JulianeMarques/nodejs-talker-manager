@@ -196,7 +196,6 @@ const validRate = (req, res, next) => {
   next();
 };
 
-
 app.post('/talker', 
   validToken,
   validName,
@@ -228,7 +227,6 @@ app.put('/talker/:id',
     people[parseInt(id, 10)] = { name, age, talk, id: parseInt(id, 10) };
     fs.writeFileSync(TALKER, JSON.stringify(people));
     return res.status(200).json({
-      name, age, talk, id: parseInt(id, 10)
+      name, age, talk, id: parseInt(id, 10),
     });
-  }
-)
+  });
