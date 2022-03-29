@@ -146,6 +146,16 @@ const validAge = (req, res, next) => {
 };
 
 // 4 O campo talk deverá ser um objeto com as seguintes chaves...
+const validTalk = (req, res, next) => {
+  const { talk } = req.body;
+
+  if (!talk || talk === '') {
+    return res.status(400).json({
+      message: 'O campo "talk" é obrigatório e "watchedAt" e "rate" não podem ser vazios',
+    });
+  }
+  next();
+};
 
 // referencia do regex ----> https://stackoverflow.com/questions/15196451/regular-expression-to-validate-datetime-format-mm-dd-yyyy
 const dateRegex = /^\d{2}\/\d{2}\/\d{4}$/;
@@ -186,16 +196,6 @@ const validRate = (req, res, next) => {
   next();
 };
 
-const validTalk = (req, res, next) => {
-  const { talk } = req.body;
-
-  if (!talk || talk === '') {
-    return res.status(400).json({
-      message: 'O campo "talk" é obrigatório e "watchedAt" e "rate" não podem ser vazios',
-    });
-  }
-  next();
-};
 
 app.post('/talker', 
   validToken,
@@ -214,23 +214,21 @@ app.post('/talker',
     return res.status(201).json(person);
   });
 
-// app.put('/talker/:id', 
-//   validToken,
-//   validTalk,
-//   validName,
-//   validAge,
-//   validDate,
-//   validRate,
-//   (req, res) => {
-//     const { id } = req.params;
-//     const { name, age, talk } = req.body;
-//     const people = JSON.parse(fs.readFileSync(TALKER, 'utf-8'));
-//     const editedPerson = { id, name, age, talk };
-//     // logica que falta
-//     return res.status(200).json({
-//       id, name, age, talk,
-//     });
-
-//   }
-
-// )
+app.put('/talker/:id', 
+  validToken,
+  validTalk,
+  validName,
+  validAge,
+  validDate,
+  validRate,
+  (req, res) => {
+    const { id } = req.params;
+    const { name, age, talk } = req.body;
+    const people = JSON.parse(fs.readFileSync(TALKER, 'utf-8'));
+    people[parseInt(id, 10)] = { name, age, talk, id: parseInt(id, 10) };
+    fs.writeFileSync(TALKER, JSON.stringify(people));
+    return res.status(200).json({
+      name, age, talk, id: parseInt(id, 10)
+    });
+  }
+)
