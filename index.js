@@ -2,8 +2,6 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const fs = require('fs');
 
-const TALKER = 'talker.json';
-
 const app = express();
 app.use(bodyParser.json());
 
@@ -18,6 +16,11 @@ app.get('/', (_request, response) => {
 app.listen(PORT, () => {
   console.log('Online');
 });
+
+const TALKER = 'talker.json';
+
+const allTalkers = () => fs.readFile(TALKER, 'utf8')
+    .then((data) => JSON.parse(data));
 
 // 1. O endpoint deve retornar um array com todas as pessoas palestrantes cadastradas
 app.get('/talker', (_request, response) => {
@@ -207,7 +210,7 @@ app.post('/talker',
   validAge,
   async (req, res) => {
     const { age, name, talk } = req.body;
-    const people = JSON.parse(fs.readFileSync(TALKER, 'utf-8'));
+    const people = await allTalkers();
     const id = people.length + 1;
     const person = { name, age, id, talk };
     const newPeople = people.push(person);
@@ -219,3 +222,24 @@ app.post('/talker',
       talk,
     });
   });
+
+// app.put('/talker/:id', 
+//   validToken,
+//   validTalk,
+//   validName,
+//   validAge,
+//   validDate,
+//   validRate,
+//   (req, res) => {
+//     const { id } = req.params;
+//     const { name, age, talk } = req.body;
+//     const people = JSON.parse(fs.readFileSync(TALKER, 'utf-8'));
+//     const editedPerson = { id, name, age, talk };
+//     // logica que falta
+//     return res.status(200).json({
+//       id, name, age, talk,
+//     });
+
+//   }
+
+// )
