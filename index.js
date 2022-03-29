@@ -145,17 +145,21 @@ const validAge = (req, res, next) => {
 
 // 4 O campo talk deverá ser um objeto com as seguintes chaves...
 
+// referencia do regex ----> https://stackoverflow.com/questions/15196451/regular-expression-to-validate-datetime-format-mm-dd-yyyy
+const dateRegex = /^\d{2}\/\d{2}\/\d{4}$/;
 
 const validDateRate = (req, res, next) => {
   const { talk } = req.body;
   const { watchedAt, rate } = talk;
-  if () { // nao sei fazer....
-    return response.status(400).json({
+
+  if (!watchedAt.match(dateRegex)) {
+    return res.status(400).json({
       message: 'O campo "watchedAt" deve ter o formato "dd/mm/aaaa"',
     });
   }
+  
   if (typeof rate !== 'number' || rate < 1 || rate > 5) {
-    return response.status(400).json({
+    return res.status(400).json({
       message: 'O campo "rate" deve ser um inteiro de 1 à 5',
     });
   }
@@ -164,15 +168,16 @@ const validDateRate = (req, res, next) => {
 
 const validTalk = (req, res, next) => {
   const { talk } = req.body;
+  const { watchedAt, rate } = talk;
+
   if (!talk || talk === '') {
     return res.status(400).json({
       message: 'O campo "talk" é obrigatório e "watchedAt" e "rate" não podem ser vazios',
     })
   }
 
-const { watchedAt, rate } = talk;
-  if (!watchedAt || !rate) {
-    return response.status(400).json({
+  if (!watchedAt || rate === 'undefined') {
+    return res.status(400).json({
       message:
         'O campo "talk" é obrigatório e "watchedAt" e "rate" não podem ser vazios',
     });
@@ -185,7 +190,7 @@ app.post(
   validToken,
   validName,
   validTalk,
-  // validDateRate,
+  validDateRate,
   validAge,
   validPassword,
   validEmail,
