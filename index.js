@@ -19,10 +19,6 @@ app.listen(PORT, () => {
 
 const TALKER = 'talker.json';
 
-// const allTalkers = () => fs.readFile(TALKER, 'utf8')
-//     .then((data) => JSON.parse(data));
-
-// 1. O endpoint deve retornar um array com todas as pessoas palestrantes cadastradas
 app.get('/talker', (_request, response) => {
   try {
     const people = fs.readFileSync(TALKER, 'utf-8');
@@ -32,7 +28,6 @@ app.get('/talker', (_request, response) => {
   }
 });
 
-// 2. O endpoint deve retornar uma pessoa palestrante com base no id da rota.
 app.get('/talker/:id', (req, res) => {
   const { id } = req.params;
   const people = fs.readFileSync(TALKER, 'utf-8');
@@ -45,21 +40,17 @@ app.get('/talker/:id', (req, res) => {
   return res.status(200).json(person);
 });
 
-// 3. O endpoint deve ser capaz de retornar um token aleatório de 16 caracteres que deverá ser utilizado nas demais requisições.
-
 // token: https://www.codegrepper.com/code-examples/javascript/create+16+char+token+jsv
 // var crypto = require("crypto");
 // var id = crypto.randomBytes(8).toString('hex');
 
 const crypto = require('crypto');
-// const { response } = require('express');
 
 const createToken = () => crypto.randomBytes(8).toString('hex');
 
 const validEmail = (req, res, next) => {
   const { email } = req.body;
   if (!email || email === '') {
-    // console.log("oi");
     return res.status(400).json({
       message: 'O campo "email" é obrigatório',
     });
@@ -94,8 +85,6 @@ app.post('/login', validEmail, validPassword, (_req, res) => {
   return res.status(200).json({ token });
 });
 
-// 4. A requisição deve ter o token de autenticação nos headers
-
 const validToken = (req, res, next) => {
   const token = req.headers.authorization;
   if (!token) {
@@ -110,8 +99,6 @@ const validToken = (req, res, next) => {
   }
   next();
 };
-
-// 4. O campo name deverá ter no mínimo 3 caracteres e obrigatorio
 
 const validName = (req, res, next) => {
   const { name } = req.body;
@@ -128,8 +115,6 @@ const validName = (req, res, next) => {
   next();
 };
 
-// 4. O campo age deverá ser um inteiro e apenas pessoas maiores de idade (pelo menos 18 anos) podem ser cadastrados.
-
 const validAge = (req, res, next) => {
   const { age } = req.body;
   if (!age) {
@@ -145,7 +130,6 @@ const validAge = (req, res, next) => {
   next();
 };
 
-// 4 O campo talk deverá ser um objeto com as seguintes chaves...
 const validTalk = (req, res, next) => {
   const { talk } = req.body;
 
@@ -229,4 +213,28 @@ app.put('/talker/:id',
     return res.status(200).json({
       name, age, talk, id: parseInt(id, 10),
     });
+  });
+
+app.delete('/taler/:id',
+  validToken,
+  (req, res) => {
+    const { id } = req.params;
+    const people = JSON.parse(fs.readFileSync(TALKER, 'utf-8'));
+    const talkers = people.filter((person) => person.id !== parseInt(id, 10));
+    fs.writeFileSync(TALKER, JSON.stringify(talkers));
+    return res.status(204).end();
+  });
+
+app.get('/talker/search',
+  validToken,
+  (req, res) => {
+    const { question } = req.query;
+    const people = JSON.parse(fs.readFileSync(TALKER, 'utf-8'));
+    const peopleQuery = people.filter((person) => person.name.includes(question));
+    if (!question) {
+      return res.status(200).json(people);
+    }
+    if (!peopleQuery) {
+      return res.status(200).json(peopleQuery);
+    }
   });
