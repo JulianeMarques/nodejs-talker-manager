@@ -181,6 +181,11 @@ const validDate = (req, res, next) => {
 const validRate = (req, res, next) => {
   const { talk } = req.body;
   const { rate } = talk;
+  if (Number(rate) < 1 || Number(rate) > 5) {
+    return res.status(400).json({
+      message: 'O campo "rate" deve ser um inteiro de 1 à 5',
+    });
+  }
 
   if (!rate) {
     return res.status(400).json({
@@ -188,11 +193,6 @@ const validRate = (req, res, next) => {
     });
   }
 
-  if (Number(rate) < 1 || Number(rate) > 5) {
-    return res.status(400).json({
-      message: 'O campo "rate" deve ser um inteiro de 1 à 5',
-    });
-  }
   next();
 };
 
