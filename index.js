@@ -80,7 +80,10 @@ const validPassword = (req, res, next) => {
   next();
 };
 
-app.post('/login', validEmail, validPassword, (_req, res) => {
+app.post('/login', 
+validEmail, 
+validPassword, 
+(_req, res) => {
   const token = createToken();
   return res.status(200).json({ token });
 });
@@ -215,7 +218,7 @@ app.put('/talker/:id',
     });
   });
 
-app.delete('/taler/:id',
+app.delete('/talker/:id',
   validToken,
   (req, res) => {
     const { id } = req.params;
@@ -230,10 +233,11 @@ app.get('/talker/search',
   (req, res) => {
     const { question } = req.query;
     const people = JSON.parse(fs.readFileSync(TALKER, 'utf-8'));
-    const peopleQuery = people.filter((person) => person.name.includes(question));
     if (!question) {
-      return res.status(200).json(people);
+      return res.status(200).json([]);
     }
+    const peopleQuery = people.filter((person) => person.name.toLowerCase() === question.toLowerCase(),
+    );
     if (!peopleQuery) {
       return res.status(200).json(peopleQuery);
     }
