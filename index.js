@@ -49,7 +49,7 @@ app.get('/talker/:id', (req, res) => {
 // var id = crypto.randomBytes(8).toString('hex');
 
 const crypto = require('crypto');
-const { response } = require('express');
+// const { response } = require('express');
 
 const createToken = () => crypto.randomBytes(8).toString('hex');
 
@@ -77,12 +77,12 @@ const validPassword = (req, res, next) => {
     return res.status(400).json({
       message: 'O campo "password" é obrigatório',
     });
-  };
+  }
   if (password.length < 6) {
     return res.status(400).json({
       message: 'O "password" deve ter pelo menos 6 caracteres',
     });
-  };
+  }
   next();
 };
 
