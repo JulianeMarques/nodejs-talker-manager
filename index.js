@@ -100,7 +100,7 @@ const validToken = (req, res, next) => {
       message: 'Token não encontrado',
     });
   }
-  if (token.length !== 16) {
+  if (token.length < 16) {
     return res.status(401).json({
       message: 'Token inválido',
     });
@@ -108,11 +108,11 @@ const validToken = (req, res, next) => {
   next();
 };
 
-// 4. O campo name deverá ter no mínimo 3 caracteres
+// 4. O campo name deverá ter no mínimo 3 caracteres e obrigatorio
 
 const validName = (req, res, next) => {
   const { name } = req.body;
-  if (!name || name === '') {
+  if (!name) {
     return res.status(400).json({
       message: 'O campo "name" é obrigatório',
     });
@@ -129,12 +129,12 @@ const validName = (req, res, next) => {
 
 const validAge = (req, res, next) => {
   const { age } = req.body;
-  if (!age || age === '') {
+  if (!age) {
     return res.status(400).json({
       message: 'O campo "age" é obrigatório',
     });
   }
-  if (age < 18) {
+  if (Number(age) <= 18) {
     return res.status(400).json({
       message: 'A pessoa palestrante deve ser maior de idade',
     });
@@ -147,17 +147,35 @@ const validAge = (req, res, next) => {
 // referencia do regex ----> https://stackoverflow.com/questions/15196451/regular-expression-to-validate-datetime-format-mm-dd-yyyy
 const dateRegex = /^\d{2}\/\d{2}\/\d{4}$/;
 
-const validDateRate = (req, res, next) => {
+const validDate = (req, res, next) => {
   const { talk } = req.body;
-  const { watchedAt, rate } = talk;
+  const { watchedAt } = talk;
+
+  if (!watchedAt) {
+    return res.status(400).json({
+      message: 'O campo "talk" é obrigatório e "watchedAt" e "rate" não podem ser vazios',
+    });
+  }
 
   if (!watchedAt.match(dateRegex)) {
     return res.status(400).json({
       message: 'O campo "watchedAt" deve ter o formato "dd/mm/aaaa"',
     });
   }
-  
-  if (typeof rate !== 'number' || rate < 1 || rate > 5) {
+  next();
+};
+
+const validRate = (req, res, next) => {
+  const { talk } = req.body;
+  const { rate } = talk;
+
+  if (!rate) {
+    return res.status(400).json({
+      message: 'O campo "talk" é obrigatório e "watchedAt" e "rate" não podem ser vazios',
+    });
+  }
+
+  if (Number(rate) < 1 || Number(rate) > 5) {
     return res.status(400).json({
       message: 'O campo "rate" deve ser um inteiro de 1 à 5',
     });
@@ -167,7 +185,6 @@ const validDateRate = (req, res, next) => {
 
 const validTalk = (req, res, next) => {
   const { talk } = req.body;
-  const { watchedAt, rate } = talk;
 
   if (!talk || talk === '') {
     return res.status(400).json({
@@ -175,36 +192,30 @@ const validTalk = (req, res, next) => {
     });
   }
 
-  if (!watchedAt || rate === 'undefined') {
-    return res.status(400).json({
-      message:
-        'O campo "talk" é obrigatório e "watchedAt" e "rate" não podem ser vazios',
-    });
-  }
+  validRate(req, res);
+  validDate(req, res);
+
   next();
 };
 
-app.post(
-  '/talker',
+app.post('/talker', 
   validToken,
   validName,
   validTalk,
-  validDateRate,
+  validDate,
+  validRate,
   validAge,
-  validPassword,
-  validEmail,
-  (req, res) => {
-    const people = JSON.parse(fs.readFileSync(TALKER, 'utf-8'));
+  async (req, res) => {
     const { age, name, talk } = req.body;
+    const people = JSON.parse(fs.readFileSync(TALKER, 'utf-8'));
     const id = people.length + 1;
     const person = { name, age, id, talk };
-    people.push(person);
-    fs.writeFileSync(TALKER, JSON.stringify(people));
+    const newPeople = people.push(person);
+    fs.writeFileSync(TALKER, JSON.stringify(newPeople));
     return res.status(201).json({
       id,
       name,
       age,
       talk,
     });
-  },
-);
+  });
